@@ -34,17 +34,22 @@ const handleEvent = event => {
 
 	const txt = event.message.text;
 
+	console.log(`incoming text: ${txt}`);
+
 	if (!/\$/.test(txt)) return _bluebird2.default.resolve(null);
 
 	const commands = /\$(.*)/.exec(txt)[1].split(' ');
 
 	const currency = commands[0];
 
+	console.log('call getExchangeRateData');
 	return (0, _getExchangeRate2.default)().then(data => {
 		const curReg = new RegExp(currency);
 		const rateInfo = data.find(item => {
 			return curReg.test(item.currency, 'i');
 		});
+
+		console.log(`rateInfo: ${rateInfo}`);
 
 		if (rateInfo == null) return null;
 
