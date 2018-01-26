@@ -44,8 +44,8 @@ const handleEvent = (event) => {
 
   		return reminder.checkRate(currency)
 	}
-	else if(/--/.test(txt)){
-		const commands = /--(.*)/.exec(txt)[1]
+	else if(/^-/.test(txt)){
+		const commands = /^-(.*)/.exec(txt)[1]
 
 		console.log(commands)
 
