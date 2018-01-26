@@ -49,8 +49,8 @@ const handleEvent = (event) => {
 
 		console.log(commands)
 
-		if(reminders[commands] != null)
-			return reminders[commands]()
+		if(reminder[commands] != null)
+			return reminder[commands]()
 	}
 }
 
