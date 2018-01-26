@@ -36,11 +36,6 @@ const app = (0, _express2.default)();
 const handleEvent = event => {
 	console.log(event);
 
-	if (event.type !== 'message' || event.message.type !== 'text') {
-		// ignore non-text-message event
-		return _bluebird2.default.resolve(null);
-	}
-
 	const { userId } = event.source;
 
 	if (!reminders.hasOwnProperty(userId)) reminders[userId] = new _reminder2.default(client, userId);
@@ -49,22 +44,27 @@ const handleEvent = event => {
 
 	reminder.replyToken = event.replyToken;
 
-	const txt = event.message.text;
+	if (event.type === 'message' && event.message.type === "text") {
+		const txt = event.message.text;
 
-	console.log(`incoming text: ${txt}`);
+		console.log(`incoming text: ${txt}`);
 
-	//check currency
-	if (/\$/.test(txt)) {
-		const commands = /\$(.*)/.exec(txt)[1].split(' ');
-		const currency = commands[0];
+		//check currency
+		if (/\$/.test(txt)) {
+			const commands = /\$(.*)/.exec(txt)[1].split(' ');
+			const currency = commands[0];
 
-		return reminder.checkRate(currency);
-	} else if (/^-/.test(txt)) {
-		const commands = /^-(.*)/.exec(txt)[1];
+			return reminder.checkRate(currency);
+		} else if (/^-/.test(txt)) {
+			const commands = /^-(.*)/.exec(txt)[1];
 
-		console.log(commands);
+			console.log(commands);
 
-		if (reminder[commands] != null) return reminder[commands]();
+			if (reminder[commands] != null) return reminder[commands]();
+		} else reminder.handleMessage(txt);
+	} else if (event.type === 'postback') {
+		console.log(`postback data: ${event.postback.data}`);
+		reminder.handlePostback(JSON.parse(event.postback.data));
 	}
 };
 
