@@ -3,7 +3,7 @@ import banks from './banks'
 class Reminder {
 	constructor(client, userId){
 		this.client = client
-		this.userId = 
+		this.userId = userId
 		this.bank = banks[0]
 		this.targetRate = null
 		this.checkFrequency = 1000 * 60

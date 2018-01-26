@@ -13,7 +13,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class Reminder {
 	constructor(client, userId) {
 		this.client = client;
-		this.userId = this.bank = _banks2.default[0];
+		this.userId = userId;
+		this.bank = _banks2.default[0];
 		this.targetRate = null;
 		this.checkFrequency = 1000 * 60;
 
