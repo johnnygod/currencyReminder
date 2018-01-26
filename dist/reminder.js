@@ -1,5 +1,9 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _banks = require('./banks');
 
 var _banks2 = _interopRequireDefault(_banks);
@@ -52,3 +56,5 @@ class Reminder {
 		});
 	}
 }
+
+exports.default = Reminder;

@@ -53,3 +53,5 @@ class Reminder {
 		})
 	}
 }
+
+export default Reminder
