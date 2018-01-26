@@ -47,7 +47,10 @@ const handleEvent = (event) => {
 	else if(/--/.test(txt)){
 		const commands = /--(.*)/.exec(txt)[1]
 
-		return reminder[commands]
+		console.log(commands)
+
+		if(reminders[commands] != null)
+			return reminders[commands]()
 	}
 }
 
