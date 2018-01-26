@@ -32,6 +32,7 @@ const handleEvent = (event) => {
 	  console.log('call getExchangeRateData')
 	  return getExchangeRateData()
 	  			.then(data => {
+	  				console.log(`results: ${data}`)
 	  				const curReg = new RegExp(currency)
 	  				const rateInfo = data.find(item => {
 	  					return curReg.test(item.currency, 'i')
@@ -42,15 +43,10 @@ const handleEvent = (event) => {
 	  				if(rateInfo == null)
 	  					return null
 
-	  				const messages = []
-	  				messages.push(`現金買入: ${rateInfo.cashBuy}`)
-	  				messages.push(`現金賣出: ${rateInfo.cashSell}`)
-	  				messages.push(`即期買入: ${rateInfo.buy}`)
-	  				messages.push(`即期賣出: ${rateInfo.sell}`)
+	  				const message = `現金買入: ${rateInfo.cashBuy}\n現金賣出: ${rateInfo.cashSell}\n即期買入: ${rateInfo.buy}\n即期賣出: ${rateInfo.sell}`
 
-	  				return client.replyMessage(event.replyToken, messages.map(item => {
-	  					return { type: 'text', text: item }
-	  				}))
+
+	  				return client.replyMessage(event.replyToken, { type: 'text', text: message })
 	  			})
 
 
