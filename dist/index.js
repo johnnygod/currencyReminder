@@ -12,6 +12,10 @@ var _getExchangeRate = require('./getExchangeRate');
 
 var _getExchangeRate2 = _interopRequireDefault(_getExchangeRate);
 
+var _reminder = require('./reminder');
+
+var _reminder2 = _interopRequireDefault(_reminder);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const line = require('@line/bot-sdk');
@@ -24,6 +28,9 @@ const config = {
 
 const client = new line.Client(config);
 
+//use to store reminder for each user
+const reminders = {};
+
 const app = (0, _express2.default)();
 
 const handleEvent = event => {
@@ -34,38 +41,29 @@ const handleEvent = event => {
 		return _bluebird2.default.resolve(null);
 	}
 
+	const { userId } = event.source;
+
+	if (!reminders.hasOwnProperty(userId)) reminders[userId] = new _reminder2.default(client, userId);
+
+	const reminder = reminders[userId];
+
+	reminder.replyToken = event.replyToken;
+
 	const txt = event.message.text;
 
 	console.log(`incoming text: ${txt}`);
 
-	if (!/\$/.test(txt)) return _bluebird2.default.resolve(null);
+	//check currency
+	if (/\$/.test(txt)) {
+		const commands = /\$(.*)/.exec(txt)[1].split(' ');
+		const currency = commands[0];
 
-	const commands = /\$(.*)/.exec(txt)[1].split(' ');
+		return reminder.checkRate(currency);
+	} else if (/--/.test(txt)) {
+		const commands = /--(.*)/.exec(txt)[1];
 
-	const currency = commands[0];
-
-	console.log('call getExchangeRateData');
-	return (0, _getExchangeRate2.default)().then(data => {
-		console.log(`results: ${data}`);
-		const curReg = new RegExp(currency, 'i');
-		const rateInfo = data.find(item => {
-			return curReg.test(item.currency);
-		});
-
-		console.log(`rateInfo: ${rateInfo}`);
-
-		if (rateInfo == null) return null;
-
-		const message = `現金買入: ${rateInfo.cashBuy}\n現金賣出: ${rateInfo.cashSell}\n即期買入: ${rateInfo.buy}\n即期賣出: ${rateInfo.sell}`;
-
-		return client.replyMessage(event.replyToken, { type: 'text', text: message });
-	});
-
-	// create a echoing text message
-	// const echo = { type: 'text', text: event.message.text };
-
-	// use reply API
-	// return client.replyMessage(event.replyToken, echo);
+		return reminder[commands];
+	}
 };
 
 app.post('/callback', line.middleware(config), (req, res) => {

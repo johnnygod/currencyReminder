@@ -2,6 +2,7 @@ const line = require('@line/bot-sdk')
 import express from 'express'
 import Promise from 'bluebird'
 import getExchangeRateData from './getExchangeRate'
+import Reminder from './reminder'
 
 const config = {
 	channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
@@ -10,53 +11,44 @@ const config = {
 
 const client = new line.Client(config)
 
+//use to store reminder for each user
+const reminders = {}
+
 const app = express()
 
 const handleEvent = (event) => {
 	console.log(event)
-	
+
 	if (event.type !== 'message' || event.message.type !== 'text') {
 	    // ignore non-text-message event
 	    return Promise.resolve(null);
 	  }
 
-	  const txt = event.message.text
+  	const {userId} = event.source
 
-	  console.log(`incoming text: ${txt}`)
+  	if(!reminders.hasOwnProperty(userId))
+		reminders[userId] = new Reminder(client, userId)
+	  	
+  	const reminder = reminders[userId]
 
-	  if(!/\$/.test(txt))
-	  	return Promise.resolve(null)
+  	reminder.replyToken = event.replyToken
 
-	  const commands = /\$(.*)/.exec(txt)[1].split(' ')
+  	const txt = event.message.text
 
-	  const currency = commands[0]
+  	console.log(`incoming text: ${txt}`)
 
-	  console.log('call getExchangeRateData')
-	  return getExchangeRateData()
-	  			.then(data => {
-	  				console.log(`results: ${data}`)
-	  				const curReg = new RegExp(currency, 'i')
-	  				const rateInfo = data.find(item => {
-	  					return curReg.test(item.currency)
-	  				})
+  	//check currency
+	if(/\$/.test(txt)){
+  		const commands = /\$(.*)/.exec(txt)[1].split(' ')
+  		const currency = commands[0]
 
-	  				console.log(`rateInfo: ${rateInfo}`)
+  		return reminder.checkRate(currency)
+	}
+	else if(/--/.test(txt)){
+		const commands = /--(.*)/.exec(txt)[1]
 
-	  				if(rateInfo == null)
-	  					return null
-
-	  				const message = `現金買入: ${rateInfo.cashBuy}\n現金賣出: ${rateInfo.cashSell}\n即期買入: ${rateInfo.buy}\n即期賣出: ${rateInfo.sell}`
-
-
-	  				return client.replyMessage(event.replyToken, { type: 'text', text: message })
-	  			})
-
-
-	  // create a echoing text message
-	  // const echo = { type: 'text', text: event.message.text };
-
-	  // use reply API
-	  // return client.replyMessage(event.replyToken, echo);
+		return reminder[commands]
+	}
 }
 
 app.post('/callback', line.middleware(config), (req, res) => {
