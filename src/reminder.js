@@ -104,6 +104,8 @@ class Reminder {
 				}
 			})
 		}
+		else
+			this.reset()
 	}
 
 	_setCurrency(currency){
@@ -218,15 +220,15 @@ class Reminder {
 				this.rule = (rate) => rate > targetRate
 				ruleMsg = '"高於"'
 				break
-			case 0:
+			case 1:
 				this.rule = (rate) => rate < targetRate
 				ruleMsg = '"低於"'
 				break
-			case 0:
+			case 2:
 				this.rule = (rate) => rate >= targetRate
 				ruleMsg = '"等於或高於"'
 				break
-			case 0:
+			case 3:
 				this.rule = (rate) => rate >= targetRate
 				ruleMsg = '"等於或低於"'
 				break
