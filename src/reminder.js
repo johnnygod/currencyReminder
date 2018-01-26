@@ -267,8 +267,10 @@ class Reminder {
 	_confirmSetting(isConfirm){
 		if(!isConfirm)
 			this.reset()
-		else
+		else{
 			this.start()
+			this.client.pushMessage(this.userId, { type: 'text', text: '成功啟用提醒功能，祝您發大財!!\n(請勿再次點擊之前的按鈕避免造成錯誤!)' })
+		}
 	}
 
 	reset(){
@@ -285,8 +287,9 @@ class Reminder {
 		if(this.end != null)
 			clearInterval(this.end)
 
-		const currency = this.currency, type = this.targetType
+		const currency = this.currency, type = this.targetType, userId = this.userId
 		this.end = setInterval(() => {
+			console.log(`checking Rate for ${userId}`)
 			this.bank.getExchangeRateData()
 				.then(data => {
 					const reg = new RegExp(currency, 'i')
@@ -315,6 +318,8 @@ class Reminder {
 							break
 					}
 
+					console.log(`current rate is ${curRate}`)
+
 					if(curRate != null)
 						this.client.pushMessage(this.userId, { type: 'text', text: `目前匯率: ${curRate}，請進場購買!` })
 						.then(() => {
@@ -327,7 +332,6 @@ class Reminder {
 					}
 
 				})
-
 		}, this.checkFrequency)
 	}
 
