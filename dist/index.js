@@ -27,6 +27,8 @@ const client = new line.Client(config);
 const app = (0, _express2.default)();
 
 const handleEvent = event => {
+	console.log(event);
+
 	if (event.type !== 'message' || event.message.type !== 'text') {
 		// ignore non-text-message event
 		return _bluebird2.default.resolve(null);
@@ -45,9 +47,9 @@ const handleEvent = event => {
 	console.log('call getExchangeRateData');
 	return (0, _getExchangeRate2.default)().then(data => {
 		console.log(`results: ${data}`);
-		const curReg = new RegExp(currency);
+		const curReg = new RegExp(currency, 'i');
 		const rateInfo = data.find(item => {
-			return curReg.test(item.currency, 'i');
+			return curReg.test(item.currency);
 		});
 
 		console.log(`rateInfo: ${rateInfo}`);

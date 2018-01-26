@@ -13,6 +13,8 @@ const client = new line.Client(config)
 const app = express()
 
 const handleEvent = (event) => {
+	console.log(event)
+	
 	if (event.type !== 'message' || event.message.type !== 'text') {
 	    // ignore non-text-message event
 	    return Promise.resolve(null);
@@ -33,9 +35,9 @@ const handleEvent = (event) => {
 	  return getExchangeRateData()
 	  			.then(data => {
 	  				console.log(`results: ${data}`)
-	  				const curReg = new RegExp(currency)
+	  				const curReg = new RegExp(currency, 'i')
 	  				const rateInfo = data.find(item => {
-	  					return curReg.test(item.currency, 'i')
+	  					return curReg.test(item.currency)
 	  				})
 
 	  				console.log(`rateInfo: ${rateInfo}`)
