@@ -24,7 +24,7 @@ class Reminder {
 		this.client = client;
 		this.userId = userId;
 
-		this.bank = _banks2.default[0];
+		this.bank = _banks2.default[1];
 		this.currency = null;
 		this.targetType = null;
 		this.targetRate = null;

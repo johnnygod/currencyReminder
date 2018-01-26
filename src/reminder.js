@@ -14,7 +14,7 @@ class Reminder {
 		this.client = client
 		this.userId = userId
 
-		this.bank = banks[0]
+		this.bank = banks[1]
 		this.currency = null
 		this.targetType = null
 		this.targetRate = null
