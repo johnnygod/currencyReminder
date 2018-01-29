@@ -288,6 +288,7 @@ class Reminder {
 			this.end()
 
 		const currency = this.currency, type = this.targetType, userId = this.userId
+		const checkFN = this.rule, stopFN = this.end, client = this.client
 		this.stopKey = setInterval(() => {
 			console.log(`checking Rate for ${userId}`)
 			this.bank.getExchangeRateData()
@@ -296,7 +297,7 @@ class Reminder {
 					const rateInfo = data.find(item => reg.test(item.currency))
 
 					if(rateInfo == null){
-						this.end()
+						stopFN()
 					}
 
 					let curRate
@@ -319,15 +320,15 @@ class Reminder {
 
 					console.log(`current rate is ${curRate}`)
 
-					if(curRate != null)
-						if(this.rule(curRate)){
-							this.client.pushMessage(this.userId, { type: 'text', text: `目前匯率: ${curRate}，請進場購買!` })
-							.then(() => {
-								this.end()
-							})
-						}						
+					if(curRate != null){
+						console.log(`check result: ${checkFN(curRate)}`)
+						if(checkFN(curRate)){
+							client.pushMessage(userId, { type: 'text', text: `目前匯率: ${curRate}，請進場購買!` })
+							stopFN()
+						}
+					}												
 					else{
-						this.end()
+						stopFN()
 					}
 
 				})
