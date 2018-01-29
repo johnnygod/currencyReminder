@@ -264,20 +264,19 @@ class Reminder {
 	}
 
 	start() {
-		if (this.end != null) clearInterval(this.end);
+		if (this.stopKey != null) this.end();
 
 		const currency = this.currency,
 		      type = this.targetType,
 		      userId = this.userId;
-		this.end = setInterval(() => {
+		this.stopKey = setInterval(() => {
 			console.log(`checking Rate for ${userId}`);
 			this.bank.getExchangeRateData().then(data => {
 				const reg = new RegExp(currency, 'i');
 				const rateInfo = data.find(item => reg.test(item.currency));
 
 				if (rateInfo == null) {
-					clearInterval(this.end);
-					this.end = null;
+					this.end();
 				}
 
 				let curRate;
@@ -300,15 +299,20 @@ class Reminder {
 
 				console.log(`current rate is ${curRate}`);
 
-				if (curRate != null) this.client.pushMessage(this.userId, { type: 'text', text: `目前匯率: ${curRate}，請進場購買!` }).then(() => {
-					clearInterval(this.end);
-					this.end = null;
-				});else {
-					clearInterval(this.end);
-					this.end = null;
+				if (curRate != null) if (this.rule(curRate)) {
+					this.client.pushMessage(this.userId, { type: 'text', text: `目前匯率: ${curRate}，請進場購買!` }).then(() => {
+						this.end();
+					});
+				} else {
+					this.end();
 				}
 			});
 		}, this.checkFrequency);
+	}
+
+	end() {
+		clearInterval(this.stopKey);
+		this.stopKey = null;
 	}
 
 	handlePostback(payload) {
